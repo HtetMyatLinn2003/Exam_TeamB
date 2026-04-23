@@ -27,6 +27,7 @@ public class LogoutAction extends Action {
 
 		//DBへデータ保存 5
 		//なし
+		//adfhaodsfhasefd
 
 		//レスポンス値をセット 6
 		//なし
