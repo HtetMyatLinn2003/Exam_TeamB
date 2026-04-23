@@ -33,6 +33,7 @@ public class LogoutAction extends Action {
 
 		//JSPへフォワード 7
 		//コメント追加 by linn
+		//dd
 		url = "logout.jsp";
 		req.getRequestDispatcher(url).forward(req, res);
 	}
