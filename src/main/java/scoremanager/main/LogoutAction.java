@@ -3,7 +3,6 @@ package scoremanager.main;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import tool.Action;
 
 public class LogoutAction extends Action {
@@ -33,6 +32,7 @@ public class LogoutAction extends Action {
 		//なし
 
 		//JSPへフォワード 7
+		//コメント追加 by linn
 		url = "logout.jsp";
 		req.getRequestDispatcher(url).forward(req, res);
 	}
