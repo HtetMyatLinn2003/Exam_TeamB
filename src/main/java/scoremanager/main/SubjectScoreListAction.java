@@ -16,25 +16,22 @@ public class SubjectScoreListAction extends Action {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-
+    throws Exception {
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
-
         SubjectDao subjectDao = new SubjectDao();
         ScoreDao scoreDao     = new ScoreDao();
 
         List<Subject> subjectList = subjectDao.filter(teacher.getSchool());
 
-        String subjectIdStr = request.getParameter("subject_id");
+        String subjectCd = request.getParameter("subject_id");
         Subject selectedSubject = null;
         List<Score> scores = null;
 
-        if (subjectIdStr != null && !subjectIdStr.equals("0")) {
-            int subjectId = Integer.parseInt(subjectIdStr);
-            selectedSubject = subjectDao.get(subjectId);
+        if (subjectCd != null && !subjectCd.equals("0")) {
+            selectedSubject = subjectDao.get(subjectCd, teacher.getSchool());
             if (selectedSubject != null) {
-            	scores = scoreDao.filterBySubject(selectedSubject.getId());
+                scores = scoreDao.filterBySubject(selectedSubject);
             }
         }
 

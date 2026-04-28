@@ -7,12 +7,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.Subject;
-
-import bean.School;
 import bean.Score;
+import bean.School;
 import bean.Student;
 import bean.StudentScore;
+import bean.Subject;
 
 public class StudentScoreDao extends Dao {
 
