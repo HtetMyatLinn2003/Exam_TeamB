@@ -4,31 +4,16 @@ import java.io.Serializable;
 
 public class Subject implements Serializable {
 
-    private int id;
+    private String cd;
     private String name;
     private School school;
 
-    public int getId() {
-        return id;
-    }
+    public String getCd() { return cd; }
+    public void setCd(String cd) { this.cd = cd; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public School getSchool() {
-        return school;
-    }
-
-    public void setSchool(School school) {
-        this.school = school;
-    }
+    public School getSchool() { return school; }
+    public void setSchool(School school) { this.school = school; }
 }
