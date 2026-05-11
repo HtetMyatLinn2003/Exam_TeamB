@@ -4,16 +4,16 @@ import java.io.Serializable;
 
 public class Subject implements Serializable {
 
-    private int id;
+    private String cd;
     private String name;
     private School school;
 
-    public int getId() {
-        return id;
+    public String getCd() {
+        return cd;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCd(String cd) {
+        this.cd = cd;
     }
 
     public String getName() {

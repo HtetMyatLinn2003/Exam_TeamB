@@ -15,11 +15,14 @@ public class DsInitListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
-            Context ctx = new InitialContext();
-            DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/exam");
+            Context context = new InitialContext();
+            DataSource ds = (DataSource) context.lookup("java:comp/env/jdbc/exam");
             Dao.ds = ds;
+            System.out.println("★★★ DataSource取得成功 ★★★");
         } catch (Exception e) {
-            throw new RuntimeException("データソースの初期化に失敗しました: jdbc/exam", e);
+            System.out.println("★★★ DataSource取得失敗: " + e.getClass().getName());
+            System.out.println("★★★ メッセージ: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
