@@ -21,28 +21,31 @@ public class ScoreDao extends Dao {
 
         try {
             statement = connection.prepareStatement(
-                "select * from score where student_no=? and subject_cd=?");
+                "select sc.*, sub.name as subject_name, sub.school_cd" +
+                " from score sc" +
+                " join subject sub on sc.subject_cd = sub.cd" +
+                " where sc.student_no=? and sc.subject_cd=?");
             statement.setString(1, studentNo);
             statement.setString(2, subjectCd);
             ResultSet rSet = statement.executeQuery();
 
             if (rSet.next()) {
                 StudentDao studentDao = new StudentDao();
-                SubjectDao subjectDao = new SubjectDao();
+                SchoolDao schoolDao = new SchoolDao();
                 score = new Score();
                 score.setStudent(studentDao.get(rSet.getString("student_no")));
-                score.setSubject(subjectDao.get(rSet.getString("subject_cd")));
+                School school = schoolDao.get(rSet.getString("school_cd"));
+                Subject subject = new Subject();
+                subject.setCd(rSet.getString("subject_cd"));
+                subject.setName(rSet.getString("subject_name"));
+                subject.setSchool(school);
+                score.setSubject(subject);
                 score.setPoint(rSet.getInt("point"));
             }
         } catch (Exception e) {
             throw e;
         } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
-            }
+            close(statement, connection);
         }
         return score;
     }
@@ -54,27 +57,30 @@ public class ScoreDao extends Dao {
 
         try {
             statement = connection.prepareStatement(
-                "select * from score where student_no=? order by subject_cd asc");
+                "select sc.*, sub.name as subject_name, sub.school_cd" +
+                " from score sc" +
+                " join subject sub on sc.subject_cd = sub.cd" +
+                " where sc.student_no=? order by sc.subject_cd asc");
             statement.setString(1, student.getNo());
             ResultSet rSet = statement.executeQuery();
 
-            SubjectDao subjectDao = new SubjectDao();
+            SchoolDao schoolDao = new SchoolDao();
             while (rSet.next()) {
                 Score score = new Score();
                 score.setStudent(student);
-                score.setSubject(subjectDao.get(rSet.getString("subject_cd")));
+                School school = schoolDao.get(rSet.getString("school_cd"));
+                Subject subject = new Subject();
+                subject.setCd(rSet.getString("subject_cd"));
+                subject.setName(rSet.getString("subject_name"));
+                subject.setSchool(school);
+                score.setSubject(subject);
                 score.setPoint(rSet.getInt("point"));
                 list.add(score);
             }
         } catch (Exception e) {
             throw e;
         } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
-            }
+            close(statement, connection);
         }
         return list;
     }
@@ -101,12 +107,7 @@ public class ScoreDao extends Dao {
         } catch (Exception e) {
             throw e;
         } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
-            }
+            close(statement, connection);
         }
         return list;
     }
@@ -118,31 +119,31 @@ public class ScoreDao extends Dao {
 
         try {
             statement = connection.prepareStatement(
-                "select sc.* from score sc " +
-                "join student st on sc.student_no = st.no " +
-                "where st.school_cd=? " +
-                "order by sc.student_no asc, sc.subject_cd asc");
+                "select sc.*, sub.name as subject_name" +
+                " from score sc" +
+                " join student st on sc.student_no = st.no" +
+                " join subject sub on sc.subject_cd = sub.cd" +
+                " where st.school_cd=?" +
+                " order by sc.student_no asc, sc.subject_cd asc");
             statement.setString(1, school.getCd());
             ResultSet rSet = statement.executeQuery();
 
             StudentDao studentDao = new StudentDao();
-            SubjectDao subjectDao = new SubjectDao();
             while (rSet.next()) {
                 Score score = new Score();
                 score.setStudent(studentDao.get(rSet.getString("student_no")));
-                score.setSubject(subjectDao.get(rSet.getString("subject_cd")));
+                Subject subject = new Subject();
+                subject.setCd(rSet.getString("subject_cd"));
+                subject.setName(rSet.getString("subject_name"));
+                subject.setSchool(school);
+                score.setSubject(subject);
                 score.setPoint(rSet.getInt("point"));
                 list.add(score);
             }
         } catch (Exception e) {
             throw e;
         } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
-            }
+            close(statement, connection);
         }
         return list;
     }
@@ -171,13 +172,13 @@ public class ScoreDao extends Dao {
         } catch (Exception e) {
             throw e;
         } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException sqle) { throw sqle; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException sqle) { throw sqle; }
-            }
+            close(statement, connection);
         }
         return count > 0;
+    }
+
+    private void close(PreparedStatement st, Connection con) throws SQLException {
+        if (st != null) { try { st.close(); } catch (SQLException e) { throw e; } }
+        if (con != null) { try { con.close(); } catch (SQLException e) { throw e; } }
     }
 }

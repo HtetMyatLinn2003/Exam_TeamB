@@ -29,7 +29,7 @@ public class SubjectScoreListAction extends Action {
         List<Score> scores = null;
 
         if (subjectCd != null && !subjectCd.equals("0")) {
-            selectedSubject = subjectDao.get(subjectCd, teacher.getSchool());
+        	selectedSubject = subjectDao.get(subjectCd, teacher.getSchool().getCd());
             if (selectedSubject != null) {
                 scores = scoreDao.filterBySubject(selectedSubject);
             }
