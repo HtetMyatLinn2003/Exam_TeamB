@@ -15,68 +15,142 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
-/**
- * 成績参照検索画面アクション (GRMR001)
- * 科目情報検索(f=sj) と 学生番号検索(f=st) の2系統
- */
 public class TestListAction extends Action {
 
-    @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        HttpSession session = request.getSession();
-        Teacher teacher = (Teacher) session.getAttribute("user");
+	@Override
+	public void execute(HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
 
-        // 検索種別: sj=科目検索, st=学生検索
-        String mode = request.getParameter("f");
+		HttpSession session = request.getSession();
 
-        // 科目検索パラメータ
-        String f1 = request.getParameter("f1"); // 入学年度
-        String f2 = request.getParameter("f2"); // クラス
-        String f3 = request.getParameter("f3"); // 科目
-        // 学生検索パラメータ
-        String f4 = request.getParameter("f4"); // 学生番号
+		Teacher teacher = (Teacher) session.getAttribute("user");
 
-        int year = LocalDate.now().getYear();
-        List<Integer> entYearSet = new ArrayList<>();
-        for (int i = year - 10; i <= year + 1; i++) entYearSet.add(i);
+		// ログイン確認
+		if (teacher == null) {
+			response.sendRedirect("../login.jsp");
+			return;
+		}
 
-        ClassNumDao classNumDao = new ClassNumDao();
-        SubjectDao subjectDao   = new SubjectDao();
-        List<String> classNums  = classNumDao.filter(teacher.getSchool());
-        List<Subject> subjects  = subjectDao.filter(teacher.getSchool());
+		// 検索種別
+		String mode = request.getParameter("f");
 
-        request.setAttribute("ent_year_set", entYearSet);
-        request.setAttribute("class_num_set", classNums);
-        request.setAttribute("subjects", subjects);
-        request.setAttribute("f1", f1);
-        request.setAttribute("f2", f2);
-        request.setAttribute("f3", f3);
-        request.setAttribute("f4", f4);
-        request.setAttribute("f", mode);
+		// 科目検索
+		String f1 = request.getParameter("f1");
+		String f2 = request.getParameter("f2");
+		String f3 = request.getParameter("f3");
 
-        // 科目別検索 → test_list_subject.jsp へ
-        if ("sj".equals(mode) && f3 != null && !f3.isEmpty() && !f3.equals("0")) {
-            TestDao testDao = new TestDao();
-            List<Test> tests = testDao.filterBySubjectAndClass(f3, f2, teacher.getSchool());
-            Subject subject = subjectDao.get(f3, teacher.getSchool().getCd());
-            request.setAttribute("tests", tests);
-            request.setAttribute("subject", subject);
-            request.getRequestDispatcher("test_list_subject.jsp").forward(request, response);
-            return;
-        }
+		// 学生検索
+		String f4 = request.getParameter("f4");
 
-        // 学生別検索 → test_list_student.jsp へ
-        if ("st".equals(mode) && f4 != null && !f4.trim().isEmpty()) {
-            TestDao testDao = new TestDao();
-            List<Test> tests = testDao.filterByStudent(f4.trim(), teacher.getSchool());
-            request.setAttribute("tests", tests);
-            request.setAttribute("studentNo", f4.trim());
-            request.getRequestDispatcher("test_list_student.jsp").forward(request, response);
-            return;
-        }
+		// 年度リスト
+		int year = LocalDate.now().getYear();
 
-        // 初期表示 or 条件なし → 検索画面
-        request.getRequestDispatcher("test_list.jsp").forward(request, response);
-    }
+		List<Integer> entYearSet = new ArrayList<>();
+
+		for (int i = year - 10; i <= year + 1; i++) {
+			entYearSet.add(i);
+		}
+
+		// DAO
+		ClassNumDao classNumDao = new ClassNumDao();
+
+		SubjectDao subjectDao = new SubjectDao();
+
+		TestDao testDao = new TestDao();
+
+		// データ取得
+		List<String> classNums = classNumDao.filter(
+				teacher.getSchool());
+
+		List<Subject> subjects = subjectDao.filter(
+				teacher.getSchool());
+
+		// JSPへ渡す
+		request.setAttribute(
+				"ent_year_set",
+				entYearSet);
+
+		request.setAttribute(
+				"class_num_set",
+				classNums);
+
+		request.setAttribute(
+				"subjects",
+				subjects);
+
+		request.setAttribute("f1", f1);
+		request.setAttribute("f2", f2);
+		request.setAttribute("f3", f3);
+		request.setAttribute("f4", f4);
+		request.setAttribute("f", mode);
+
+		// =========================
+		// 科目検索
+		// =========================
+		if ("sj".equals(mode)
+				&& f1 != null
+				&& !f1.equals("0")
+				&& f2 != null
+				&& !f2.equals("0")
+				&& f3 != null
+				&& !f3.equals("0")) {
+
+			int entYear = Integer.parseInt(f1);
+
+			List<Test> tests = testDao.filterBySubjectAndClass(
+					entYear,
+					f3,
+					f2,
+					teacher.getSchool());
+
+			Subject subject = subjectDao.get(
+					f3,
+					teacher.getSchool().getCd());
+
+			request.setAttribute(
+					"tests",
+					tests);
+
+			request.setAttribute(
+					"subject",
+					subject);
+
+			request.getRequestDispatcher(
+					"test_list_subject.jsp")
+					.forward(request, response);
+
+			return;
+		}
+
+		// =========================
+		// 学生検索
+		// =========================
+		if ("st".equals(mode)
+				&& f4 != null
+				&& !f4.trim().isEmpty()) {
+
+			List<Test> tests = testDao.filterByStudent(
+					f4.trim(),
+					teacher.getSchool());
+
+			request.setAttribute(
+					"tests",
+					tests);
+
+			request.setAttribute(
+					"studentNo",
+					f4.trim());
+
+			request.getRequestDispatcher(
+					"test_list_student.jsp")
+					.forward(request, response);
+
+			return;
+		}
+
+		// 初期画面
+		request.getRequestDispatcher(
+				"test_list.jsp")
+				.forward(request, response);
+	}
 }
