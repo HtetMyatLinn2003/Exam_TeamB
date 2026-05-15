@@ -58,7 +58,7 @@
                             <label class="form-label">学生番号</label>
                             <input type="text" class="form-control form-control-sm"
                                    name="f4" value="${f4}" maxlength="10"
-                                   placeholder="学生番号を入力してください">
+                                   placeholder="学生番号を入力してください" required>
                         </div>
                         <div class="col-2">
                             <button type="submit" class="btn btn-secondary btn-sm w-100">検索</button>
