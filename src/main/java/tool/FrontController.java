@@ -17,13 +17,12 @@ public class FrontController extends HttpServlet {
 			// パスを取得
 			String path = req.getServletPath().substring(1);
 			// ファイル名を取得しクラス名に変換
-			String name = path.replace(".a", "A").replace('/', '.');
+			String name = path.replace(".action", "Action").replace('/', '.');
 			// アクションクラスのインスタンスを返却
 			Action action = (Action) Class.forName(name).getDeclaredConstructor().newInstance();
 
 			// 遷移先URLを取得
 			action.execute(req, res);
-
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -35,7 +34,7 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-		doGet(req,res);
+		doGet(req, res);
 
 	}
 }

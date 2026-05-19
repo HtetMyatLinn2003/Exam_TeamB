@@ -7,14 +7,8 @@
         <section class="me-4">
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">科目情報削除</h2>
             <div class="mx-4">
-                <p>「${subject.name}(${subject.cd})」を削除してもよいですか</p>
-                <form method="post" action="SubjectDeleteExecute.action">
-                    <input type="hidden" name="cd" value="${subject.cd}" />
-                    <div class="mb-3">
-                        <button type="submit" class="btn btn-danger">削除</button>
-                    </div>
-                </form>
-                <a href="SubjectList.action">戻る</a>
+                <div class="alert alert-success text-center py-2 mb-4">削除が完了しました</div>
+                <a href="SubjectList.action">科目一覧</a>
             </div>
         </section>
     </c:param>

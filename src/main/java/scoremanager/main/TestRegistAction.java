@@ -79,7 +79,7 @@ public class TestRegistAction extends Action {
             }
             request.setAttribute("tests", tests);
 
-            Subject subject = subjectDao.get(f3, teacher.getSchool());
+            Subject subject = subjectDao.get(f3, teacher.getSchool().getCd());
             request.setAttribute("subject", subject);
         }
 

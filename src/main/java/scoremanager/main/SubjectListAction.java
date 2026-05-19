@@ -14,12 +14,12 @@ public class SubjectListAction extends Action {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    throws Exception {
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
+        SubjectDao sDao = new SubjectDao();
 
-        SubjectDao subjectDao = new SubjectDao();
-        List<Subject> subjects = subjectDao.filter(teacher.getSchool());
+        List<Subject> subjects = sDao.filter(teacher.getSchool());
 
         request.setAttribute("subjects", subjects);
         request.getRequestDispatcher("subject_list.jsp").forward(request, response);

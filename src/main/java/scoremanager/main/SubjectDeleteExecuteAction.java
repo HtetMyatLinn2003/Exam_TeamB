@@ -11,15 +11,14 @@ public class SubjectDeleteExecuteAction extends Action {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    throws Exception {
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
+        SubjectDao sDao = new SubjectDao();
 
-        String cd = request.getParameter("cd");
+        String cd = request.getParameter("cd") != null ? request.getParameter("cd").trim() : null;
+        sDao.delete(cd, teacher.getSchool().getCd());
 
-        SubjectDao subjectDao = new SubjectDao();
-        subjectDao.delete(cd, teacher.getSchool());
-
-        response.sendRedirect("SubjectList.action");
+        request.getRequestDispatcher("subject_delete_done.jsp").forward(request, response);
     }
 }

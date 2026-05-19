@@ -15,14 +15,14 @@ public class SubjectCreateExecuteAction extends Action {
 
     @Override
     public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    throws Exception {
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
+        SubjectDao sDao = new SubjectDao();
+        Map<String, String> errors = new HashMap<>();
 
         String cd   = request.getParameter("cd");
         String name = request.getParameter("name");
-
-        Map<String, String> errors = new HashMap<>();
 
         if (cd == null || cd.trim().isEmpty()) {
             errors.put("cd", "科目コードを入力してください");
@@ -39,25 +39,13 @@ public class SubjectCreateExecuteAction extends Action {
             return;
         }
 
-        SubjectDao subjectDao = new SubjectDao();
-
-        // 重複チェック
-        if (subjectDao.get(cd, teacher.getSchool()) != null) {
-            errors.put("cd", "その科目コードはすでに登録されています");
-            request.setAttribute("errors", errors);
-            request.setAttribute("cd", cd);
-            request.setAttribute("name", name);
-            request.getRequestDispatcher("subject_create.jsp").forward(request, response);
-            return;
-        }
-
         Subject subject = new Subject();
         subject.setCd(cd.trim());
         subject.setName(name.trim());
         subject.setSchool(teacher.getSchool());
 
-        subjectDao.save(subject);
-
-        response.sendRedirect("SubjectList.action");
+        sDao.save(subject);
+        request.setAttribute("subject", subject);
+        request.getRequestDispatcher("subject_create_done.jsp").forward(request, response);
     }
 }

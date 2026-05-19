@@ -12,29 +12,25 @@ import bean.Subject;
 
 public class SubjectDao extends Dao {
 
-    /**
-     * 学校コード・科目コードで1件取得
-     */
-    public Subject get(String cd, School school) throws Exception {
+    public Subject get(String cd, String schoolCd) throws Exception {
         Subject subject = null;
         Connection connection = getConnection();
         PreparedStatement statement = null;
 
         try {
             statement = connection.prepareStatement(
-                "select * from subject where cd=? and school_cd=?");
-            statement.setString(1, cd);
-            statement.setString(2, school.getCd());
+                "SELECT * FROM subject WHERE TRIM(cd)=? AND school_cd=?");
+            statement.setString(1, cd != null ? cd.trim() : null);
+            statement.setString(2, schoolCd);
             ResultSet rSet = statement.executeQuery();
 
+            SchoolDao schoolDao = new SchoolDao();
             if (rSet.next()) {
                 subject = new Subject();
                 subject.setCd(rSet.getString("cd"));
                 subject.setName(rSet.getString("name"));
-                subject.setSchool(school);
+                subject.setSchool(schoolDao.get(rSet.getString("school_cd")));
             }
-        } catch (Exception e) {
-            throw e;
         } finally {
             close(statement, connection);
         }
@@ -42,9 +38,6 @@ public class SubjectDao extends Dao {
         return subject;
     }
 
-    /**
-     * 学校の全科目一覧取得
-     */
     public List<Subject> filter(School school) throws Exception {
         List<Subject> list = new ArrayList<>();
         Connection connection = getConnection();
@@ -52,19 +45,18 @@ public class SubjectDao extends Dao {
 
         try {
             statement = connection.prepareStatement(
-                "select * from subject where school_cd=? order by cd asc");
+                "SELECT * FROM subject WHERE school_cd=? ORDER BY cd");
             statement.setString(1, school.getCd());
             ResultSet rSet = statement.executeQuery();
 
+            SchoolDao schoolDao = new SchoolDao();
             while (rSet.next()) {
                 Subject subject = new Subject();
                 subject.setCd(rSet.getString("cd"));
                 subject.setName(rSet.getString("name"));
-                subject.setSchool(school);
+                subject.setSchool(schoolDao.get(rSet.getString("school_cd")));
                 list.add(subject);
             }
-        } catch (Exception e) {
-            throw e;
         } finally {
             close(statement, connection);
         }
@@ -72,32 +64,27 @@ public class SubjectDao extends Dao {
         return list;
     }
 
-    /**
-     * 登録・更新（PKが存在すればUPDATE、なければINSERT）
-     */
     public boolean save(Subject subject) throws Exception {
         Connection connection = getConnection();
         PreparedStatement statement = null;
         int count = 0;
 
         try {
-            Subject old = get(subject.getCd(), subject.getSchool());
+            Subject old = get(subject.getCd(), subject.getSchool().getCd());
             if (old == null) {
                 statement = connection.prepareStatement(
-                    "insert into subject(cd, name, school_cd) values(?, ?, ?)");
+                    "INSERT INTO subject(cd, name, school_cd) VALUES(?, ?, ?)");
                 statement.setString(1, subject.getCd());
                 statement.setString(2, subject.getName());
                 statement.setString(3, subject.getSchool().getCd());
             } else {
                 statement = connection.prepareStatement(
-                    "update subject set name=? where cd=? and school_cd=?");
+                    "UPDATE subject SET name=? WHERE cd=? AND school_cd=?");
                 statement.setString(1, subject.getName());
                 statement.setString(2, subject.getCd());
                 statement.setString(3, subject.getSchool().getCd());
             }
             count = statement.executeUpdate();
-        } catch (Exception e) {
-            throw e;
         } finally {
             close(statement, connection);
         }
@@ -105,22 +92,17 @@ public class SubjectDao extends Dao {
         return count > 0;
     }
 
-    /**
-     * 削除
-     */
-    public boolean delete(String cd, School school) throws Exception {
+    public boolean delete(String cd, String schoolCd) throws Exception {
         Connection connection = getConnection();
         PreparedStatement statement = null;
         int count = 0;
 
         try {
             statement = connection.prepareStatement(
-                "delete from subject where cd=? and school_cd=?");
-            statement.setString(1, cd);
-            statement.setString(2, school.getCd());
+                "DELETE FROM subject WHERE TRIM(cd)=? AND school_cd=?");
+            statement.setString(1, cd != null ? cd.trim() : null);
+            statement.setString(2, schoolCd);
             count = statement.executeUpdate();
-        } catch (Exception e) {
-            throw e;
         } finally {
             close(statement, connection);
         }
@@ -128,8 +110,12 @@ public class SubjectDao extends Dao {
         return count > 0;
     }
 
-    private void close(PreparedStatement st, Connection con) throws SQLException {
-        if (st != null) { try { st.close(); } catch (SQLException e) { throw e; } }
-        if (con != null) { try { con.close(); } catch (SQLException e) { throw e; } }
+    private void close(PreparedStatement statement, Connection connection) throws SQLException {
+        if (statement != null) {
+            try { statement.close(); } catch (SQLException e) { throw e; }
+        }
+        if (connection != null) {
+            try { connection.close(); } catch (SQLException e) { throw e; }
+        }
     }
 }

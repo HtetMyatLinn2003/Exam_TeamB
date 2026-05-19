@@ -1,21 +1,22 @@
 package scoremanager.main;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import bean.Student;
-import bean.Subject;
 import bean.Teacher;
 import bean.Test;
 import dao.StudentDao;
-import dao.SubjectDao;
 import dao.TestDao;
+import bean.Student;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
+/**
+ * 成績登録実行アクション
+ * 成績管理一覧画面から送信された複数学生分の得点をまとめて保存する
+ */
 public class TestRegistExecuteAction extends Action {
 
     @Override
@@ -24,60 +25,56 @@ public class TestRegistExecuteAction extends Action {
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
 
-        String studentNo = request.getParameter("studentNo");
-        String subjectCd = request.getParameter("subjectCd");
-        String pointStr  = request.getParameter("point");
+        String subjectCd = request.getParameter("subject");
+        String countStr  = request.getParameter("count");
+        int no = (countStr != null && !countStr.isEmpty()) ? Integer.parseInt(countStr) : 1;
 
         Map<String, String> errors = new HashMap<>();
 
-        if (studentNo == null || studentNo.trim().isEmpty()) {
-            errors.put("studentNo", "学生を選択してください");
-        }
-        if (subjectCd == null || subjectCd.trim().isEmpty()) {
-            errors.put("subjectCd", "科目を選択してください");
-        }
+        // regist パラメータに学生番号リストが入ってくる（複数）
+        String[] studentNos = request.getParameterValues("regist");
+        if (studentNos != null) {
+            StudentDao sDao = new StudentDao();
+            TestDao testDao = new TestDao();
+            for (String studentNo : studentNos) {
+                String pointStr = request.getParameter("point_" + studentNo);
+                if (pointStr == null || pointStr.trim().isEmpty()) continue;
 
-        Integer point = null;
-        if (pointStr != null && !pointStr.trim().isEmpty()) {
-            try {
-                point = Integer.parseInt(pointStr.trim());
-                if (point < 0 || point > 100) {
-                    errors.put("point", "得点は0〜100で入力してください");
+                try {
+                    int point = Integer.parseInt(pointStr.trim());
+                    if (point < 0 || point > 100) {
+                        errors.put("point_" + studentNo, "0〜100で入力してください");
+                        continue;
+                    }
+                    Student student = sDao.get(studentNo);
+                    Test test = new Test();
+                    test.setStudentNo(studentNo);
+                    test.setSubjectCd(subjectCd);
+                    test.setSchoolCd(teacher.getSchool().getCd());
+                    test.setNo(no);
+                    test.setPoint(point);
+                    test.setClassNum(student != null ? student.getClassNum() : null);
+
+                    // 既存があればupdate、なければinsert
+                    Test existing = testDao.get(studentNo, subjectCd, teacher.getSchool().getCd(), no);
+                    if (existing != null) {
+                        testDao.update(test);
+                    } else {
+                        testDao.saveWithNo(test);
+                    }
+                } catch (NumberFormatException e) {
+                    errors.put("point_" + studentNo, "数値で入力してください");
                 }
-            } catch (NumberFormatException e) {
-                errors.put("point", "得点は数値で入力してください");
             }
         }
 
         if (!errors.isEmpty()) {
-            StudentDao sDao = new StudentDao();
-            SubjectDao subDao = new SubjectDao();
-            List<Student> students = sDao.filter(teacher.getSchool(), true);
-            List<Subject> subjects = subDao.filter(teacher.getSchool());
             request.setAttribute("errors", errors);
-            request.setAttribute("students", students);
-            request.setAttribute("subjects", subjects);
-            request.setAttribute("studentNo", studentNo);
-            request.setAttribute("subjectCd", subjectCd);
-            request.setAttribute("point", pointStr);
-            request.getRequestDispatcher("test_regist.jsp").forward(request, response);
+            // 元画面にリダイレクトするかフォワードするか検討
+            response.sendRedirect("TestRegist.action?f3=" + subjectCd + "&f4=" + countStr);
             return;
         }
 
-        // 学生のクラス番号を取得
-        StudentDao sDao = new StudentDao();
-        Student student = sDao.get(studentNo);
-
-        Test test = new Test();
-        test.setStudentNo(studentNo);
-        test.setSubjectCd(subjectCd);
-        test.setSchoolCd(teacher.getSchool().getCd());
-        test.setPoint(point);
-        test.setClassNum(student != null ? student.getClassNum() : null);
-
-        TestDao testDao = new TestDao();
-        testDao.save(test);
-
-        response.sendRedirect("TestRegist.action");
+        request.getRequestDispatcher("test_regist_done.jsp").forward(request, response);
     }
 }
