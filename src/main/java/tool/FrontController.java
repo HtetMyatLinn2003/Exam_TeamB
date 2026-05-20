@@ -24,7 +24,6 @@ public class FrontController extends HttpServlet {
 			// 遷移先URLを取得
 			action.execute(req, res);
 
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			// エラーページへリダイレクト
@@ -35,7 +34,7 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-		doGet(req,res);
+		doGet(req, res);
 
 	}
 }
