@@ -6,55 +6,62 @@
     <c:param name="content">
         <section class="me-4">
             <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">学生別成績一覧</h2>
-
-            <form method="get" action="TestStudentList.action" class="mx-4 mb-4 d-flex gap-2 align-items-center">
-                <select name="studentNo" class="form-select" style="max-width:300px;">
-                    <option value="">学生を選択してください</option>
-                    <c:forEach var="s" items="${students}">
-                        <option value="${s.no}"
-                            <c:if test="${s.no == studentNo}">selected</c:if>>
-                            ${s.no} - ${s.name}
-                        </option>
-                    </c:forEach>
-                </select>
-                <button type="submit" class="btn btn-primary">表示</button>
-            </form>
-
-            <c:if test="${selected != null}">
-                <div class="mx-4 mb-2">
-                    <strong>${selected.no} ${selected.name}</strong>
+            <div class="px-4">
+                <div class="mb-3 fw-bold">
+                    学生番号：${studentNo}
                 </div>
                 <c:choose>
                     <c:when test="${empty tests}">
-                        <div class="mx-4">成績データがありません。</div>
+                        <div class="text-warning">該当する成績情報が存在しませんでした。</div>
                     </c:when>
                     <c:otherwise>
-                        <table class="table table-bordered mx-4" style="max-width:700px;">
-                            <tr>
-                                <th>科目名</th>
-                                <th>回数</th>
-                                <th>得点</th>
-                                <th>変更</th>
-                                <th>削除</th>
-                            </tr>
-                            <c:forEach var="test" items="${tests}">
+                        <div class="mb-2">検索結果：${tests.size()}件</div>
+                        <table class="table table-hover">
+                            <thead>
                                 <tr>
-                                    <td>${test.subjectName}</td>
-                                    <td>${test.no}</td>
-                                    <td>${test.point}</td>
-                                    <td>
-                                        <a href="TestUpdate.action?studentNo=${test.studentNo}&subjectCd=${test.subjectCd}&no=${test.no}">変更</a>
-                                    </td>
-                                    <td>
-                                        <a href="TestDeleteExecute.action?studentNo=${test.studentNo}&subjectCd=${test.subjectCd}&no=${test.no}"
-                                           onclick="return confirm('削除しますか？')">削除</a>
-                                    </td>
+                                    <th>科目コード</th>
+                                    <th>科目名</th>
+                                    <th class="text-end">第1回</th>
+                                    <th class="text-end">第2回</th>
                                 </tr>
-                            </c:forEach>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="test" items="${tests}">
+                                    <tr>
+                                        <td>${test.subjectCd}</td>
+                                        <td>${test.subjectName}</td>
+                                        <td class="text-end">
+                                            <c:choose>
+                                                <c:when test="${test.no == 1}">
+                                                    <c:choose>
+                                                        <c:when test="${test.point != null}">${test.point}点</c:when>
+                                                        <c:otherwise>-</c:otherwise>
+                                                    </c:choose>
+                                                </c:when>
+                                                <c:otherwise>-</c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td class="text-end">
+                                            <c:choose>
+                                                <c:when test="${test.no == 2}">
+                                                    <c:choose>
+                                                        <c:when test="${test.point != null}">${test.point}点</c:when>
+                                                        <c:otherwise>-</c:otherwise>
+                                                    </c:choose>
+                                                </c:when>
+                                                <c:otherwise>-</c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
                         </table>
                     </c:otherwise>
                 </c:choose>
-            </c:if>
+                <div class="mt-3">
+                    <a href="TestList.action">成績参照検索へ戻る</a>
+                </div>
+            </div>
         </section>
     </c:param>
 </c:import>
