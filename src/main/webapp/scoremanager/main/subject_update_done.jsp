@@ -9,6 +9,7 @@
             <div class="mx-4">
                 <div class="alert alert-success text-center py-2 mb-4">変更が完了しました</div>
                 <a href="SubjectList.action">科目一覧</a>
+                <a href="Menu.action">戻る</a>
             </div>
         </section>
     </c:param>

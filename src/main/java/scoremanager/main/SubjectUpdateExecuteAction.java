@@ -44,6 +44,6 @@ public class SubjectUpdateExecuteAction extends Action {
         subject.setSchool(teacher.getSchool());
 
         sDao.save(subject);
-        response.sendRedirect("SubjectList.action");
+        request.getRequestDispatcher("subject_update_done.jsp").forward(request, response);	
     }
 }
