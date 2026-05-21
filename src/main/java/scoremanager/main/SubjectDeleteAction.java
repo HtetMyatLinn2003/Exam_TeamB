@@ -9,16 +9,16 @@ import tool.Action;
 
 public class SubjectDeleteAction extends Action {
 
-    @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-    throws Exception {
-        HttpSession session = request.getSession();
-        Teacher teacher = (Teacher) session.getAttribute("user");
-        SubjectDao sDao = new SubjectDao();
+	@Override
+	public void execute(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		HttpSession session = request.getSession();
+		Teacher teacher = (Teacher) session.getAttribute("user");
+		SubjectDao sDao = new SubjectDao();
 
-        String cd = request.getParameter("cd");
-        sDao.delete(cd, teacher.getSchool().getCd());
+		String cd = request.getParameter("cd");
+		sDao.delete(cd, teacher.getSchool().getCd());
 
-        response.sendRedirect("SubjectList.action");
-    }
+		request.getRequestDispatcher("subject_update_done.jsp").forward(request, response);
+	}
 }
