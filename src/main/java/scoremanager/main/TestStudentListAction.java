@@ -14,30 +14,30 @@ import tool.Action;
 
 public class TestStudentListAction extends Action {
 
-    @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        HttpSession session = request.getSession();
-        Teacher teacher = (Teacher) session.getAttribute("user");
+	@Override
+	public void execute(HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+		HttpSession session = request.getSession();
+		Teacher teacher = (Teacher) session.getAttribute("user");
 
-        String studentNo = request.getParameter("studentNo");
+		String studentNo = request.getParameter("studentNo");
 
-        StudentDao studentDao = new StudentDao();
-        List<Student> students = studentDao.filter(teacher.getSchool(), true);
+		StudentDao studentDao = new StudentDao();
+		List<Student> students = studentDao.filter(teacher.getSchool(), false);
 
-        List<Test> tests = null;
-        Student selected = null;
+		List<Test> tests = null;
+		Student selected = null;
 
-        if (studentNo != null && !studentNo.isEmpty()) {
-            TestDao testDao = new TestDao();
-            tests   = testDao.filterByStudent(studentNo, teacher.getSchool());
-            selected = studentDao.get(studentNo);
-        }
+		if (studentNo != null && !studentNo.isEmpty()) {
+			TestDao testDao = new TestDao();
+			tests = testDao.filterByStudent(studentNo, teacher.getSchool());
+			selected = studentDao.get(studentNo);
+		}
 
-        request.setAttribute("students",   students);
-        request.setAttribute("tests",      tests);
-        request.setAttribute("selected",   selected);
-        request.setAttribute("studentNo",  studentNo);
-        request.getRequestDispatcher("test_student_list.jsp").forward(request, response);
-    }
+		request.setAttribute("students", students);
+		request.setAttribute("tests", tests);
+		request.setAttribute("selected", selected);
+		request.setAttribute("studentNo", studentNo);
+		request.getRequestDispatcher("test_student_list.jsp").forward(request, response);
+	}
 }
